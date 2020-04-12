@@ -118,6 +118,21 @@ class StatementDelVariableName(StatementBase):
         assert False
 
 
+def _makeDelVariableStatement(variable, variable_version, source_ref):
+    if variable.isTempVariable():
+        # TODO: We could well decide, if that's even necessary, but for now
+        # the "StatementDelVariable" is tasked with that, but current it does
+        # not.
+        return StatementReleaseVariable(variable=variable, source_ref=source_ref)
+    else:
+        return StatementDelVariable(
+            variable=variable,
+            version=variable_version,
+            tolerant=True,
+            source_ref=source_ref,
+        )
+
+
 class StatementAssignmentVariable(StatementChildHavingBase):
     """ Assignment to a variable from an expression.
 
@@ -345,13 +360,10 @@ Removed assignment of %s from itself which is known to be defined."""
                                 and not last_trace.getNameUsageCount()
                             ):
                                 if not last_trace.getPrevious().isUninitTrace():
-                                    # TODO: We could well decide, if that's even necessary, but for now
-                                    # the "StatementDelVariable" is tasked with that.
-                                    result = StatementDelVariable(
+                                    result = _makeDelVariableStatement(
                                         variable=self.variable,
-                                        version=self.variable_version,
-                                        tolerant=True,
-                                        source_ref=self.getSourceReference(),
+                                        variable_version=self.variable_version,
+                                        source_ref=self.source_ref,
                                     )
                                 else:
                                     result = None
@@ -377,13 +389,10 @@ Removed assignment of %s from itself which is known to be defined."""
                                 and not last_trace.getNameUsageCount()
                             ):
                                 if not last_trace.getPrevious().isUninitTrace():
-                                    # TODO: We could well decide, if that's even necessary, but for now
-                                    # the "StatementDelVariable" is tasked with that.
-                                    result = StatementDelVariable(
+                                    result = _makeDelVariableStatement(
                                         variable=self.variable,
-                                        version=self.variable_version,
-                                        tolerant=True,
-                                        source_ref=self.getSourceReference(),
+                                        variable_version=self.variable_version,
+                                        source_ref=self.source_ref,
                                     )
                                 else:
                                     result = None
